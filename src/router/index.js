@@ -42,12 +42,12 @@ const router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-  /*
+  
   if (isLoginRequired(to.name) && !window.localStorage.getItem("token")) {
     next({ path: '/login' })
     return
   }
-  */
+  
   if (to.meta.title) {
     document.title = to.meta.title
   }
