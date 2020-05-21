@@ -7,6 +7,7 @@ import axios from 'axios'
 import Config from '@/config/index'
 import { Message } from 'element-ui'
 
+//var callbackparam = 0
 
 const config = {
   baseURL: Config.baseUrl,
@@ -16,7 +17,6 @@ const config = {
     return status >= 200 && status < 500
   }
 }
-
 const _axios = axios.create(config)
 
 _axios.interceptors.request.use(config => {
@@ -24,6 +24,20 @@ _axios.interceptors.request.use(config => {
   {
     config.headers.Authorization = "Bearer " + window.localStorage.getItem("token")
   }
+  
+  /*
+  callbackparam ++
+
+  if(config.url.indexOf("?")!=-1)
+  {
+    config.url = config.url+'&callbackparam=callbackfunction'+callbackparam
+  }
+  else
+  {
+    config.url = config.url+'?callbackparam=callbackfunction'+callbackparam
+  }
+  */
+
   return config
 }, error => {
   Promise.reject(error)
@@ -36,7 +50,7 @@ _axios.interceptors.response.use(async (res) => {
     Message("你没有权限执行此操作")
     return
   }
-  return res.data
+  return res
 }, error => {
   // eslint-disable-next-line no-console
   console.log(error)
