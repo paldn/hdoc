@@ -38,7 +38,7 @@ export default {
     Screenfull
   },
   computed: {
-    ...mapGetters(['author'])
+    ...mapGetters(['user'])
   }
 }
 </script>

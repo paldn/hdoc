@@ -2,7 +2,7 @@
   <div style="height: 100%;">
     <el-container class="container">
       <el-aside :width="sideBarWidth" class="aside">
-        <sidebar :isCollapse="isCollapse"></sidebar>
+        <sidebar :isCollapse="isCollapse" :groupmoduls="groupmoduls"></sidebar>
       </el-aside>
       <el-container>
         <el-header class="header" height="72px">
@@ -31,7 +31,7 @@
 
 <script>
 import { Sidebar, NavBar, AppMain, ReuseTab, Breadcrumb } from '@/components/layout'
-
+import homeapi from '@/services/models/home'
 export default {
   components: {
     Sidebar,
@@ -47,7 +47,8 @@ export default {
     return {
       isCollapse: false,
       sideBarWidth: '200px',
-      headerHeight: '70px'
+      headerHeight: '70px',
+      groupmoduls:[]
     }
   },
 

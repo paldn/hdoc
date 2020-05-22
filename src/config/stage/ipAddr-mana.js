@@ -1,5 +1,6 @@
 //IP地址管理路由
 const IpAddrRouter = {
+    id:4000,
     route: null,
     name: null,
     title: 'IP地址管理',
@@ -11,6 +12,7 @@ const IpAddrRouter = {
     children: 
     [
         {
+            id:4001,
             title: 'IP地址管理',
             type: 'view',
             name: 'ipaddr-mana',

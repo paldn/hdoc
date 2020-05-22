@@ -20,11 +20,6 @@ const config = {
 const _axios = axios.create(config)
 
 _axios.interceptors.request.use(config => {
-  if(window.localStorage.getItem("token"))
-  {
-    config.headers.Authorization = "Bearer " + window.localStorage.getItem("token")
-  }
-  
   /*
   callbackparam ++
 
@@ -50,7 +45,7 @@ _axios.interceptors.response.use(async (res) => {
     Message("你没有权限执行此操作")
     return
   }
-  return res
+  return res.data
 }, error => {
   // eslint-disable-next-line no-console
   console.log(error)

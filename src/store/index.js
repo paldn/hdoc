@@ -12,7 +12,8 @@ const vuexLocal = new VuexPersistence({
   storage: window.localStorage,
   reducer: state => ({
     login: state.login,
-    author: state.author
+    user: state.user,
+    company: state.company
   })
 })
 

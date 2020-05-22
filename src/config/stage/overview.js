@@ -1,6 +1,7 @@
 //总览路由
 const OverViewRouter = {
     route: null,
+    id:2000,
     name: null,
     title: '总览',
     type: 'folder',
@@ -10,6 +11,7 @@ const OverViewRouter = {
     inNav: true,
     children: [
       {
+        id:2005,
         title: '仪表盘',
         type: 'folder',
         name: 'dashboard',
@@ -21,6 +23,7 @@ const OverViewRouter = {
         children:
         [
             {
+                id:200501,
                 title: '设备仪表盘',
                 type: 'view',
                 name: 'device-dashboard',
@@ -30,6 +33,7 @@ const OverViewRouter = {
                 icon: ''
             },
             {
+                id:200502,
                 title: '业务仪表盘',
                 type: 'view',
                 name: 'business-dashboard',
@@ -39,6 +43,7 @@ const OverViewRouter = {
                 icon: ''
             },
             {
+                id:200503,
                 title: '我的仪表盘',
                 type: 'view',
                 name: 'myself-dashboard',
@@ -46,10 +51,21 @@ const OverViewRouter = {
                 filePath: 'views/overview/dashboard/myself-dashboard.vue',
                 inNav: true,
                 icon: ''
-            }
+            },
+            {
+              id:200504,
+              title: '资产仪表盘',
+              type: 'view',
+              name: 'assets-dashboard',
+              route: '/dashboard/assets-dashboard',
+              filePath: 'views/overview/dashboard/assets-dashboard.vue',
+              inNav: true,
+              icon: ''
+          }
         ]
       },
       {
+        id:2001,
         title: '设备运行状态',
         type: 'view',
         name: 'device-status',
@@ -59,6 +75,7 @@ const OverViewRouter = {
         icon: ''
       },
       {
+        id:2002,
         title: 'Gis地图',
         type: 'view',
         name: 'gis-map',
@@ -68,15 +85,7 @@ const OverViewRouter = {
         icon: ''
       },
       {
-        title: '快速检测',
-        type: 'view',
-        name: 'rapid-detection',
-        route: '/overview/rapid-detection',
-        filePath: 'views/overview/rapid-detection.vue',
-        inNav: true,
-        icon: ''
-      },
-      {
+        id:2003,
         title: '链路航线图',
         type: 'view',
         name: 'link-route-map',
@@ -86,11 +95,12 @@ const OverViewRouter = {
         icon: ''
       },
       {
-        title: '物理拓扑图',
+        id:2004,
+        title: '快速检测',
         type: 'view',
-        name: 'physics-topogoly',
-        route: '/overview/physics-topogoly',
-        filePath: 'views/overview/physics-topogoly.vue',
+        name: 'rapid-detection',
+        route: '/overview/rapid-detection',
+        filePath: 'views/overview/rapid-detection.vue',
         inNav: true,
         icon: ''
       }

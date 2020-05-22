@@ -1,5 +1,6 @@
 //无线管理路由
 const WlanManaRouter = {
+    id:5000,
     route: null,
     name: null,
     title: '无线管理',
@@ -11,6 +12,7 @@ const WlanManaRouter = {
     children: 
     [
         {
+            id:5001,
             title: '概览',
             type: 'view',
             name: 'overview',
@@ -20,6 +22,7 @@ const WlanManaRouter = {
             icon: ''
         },
         {
+            id:5002,
             title: 'AC状态',
             type: 'view',
             name: 'ac-status',
@@ -29,6 +32,7 @@ const WlanManaRouter = {
             icon: ''
         },
         {
+            id:5003,
             title: 'AP状态',
             type: 'view',
             name: 'ap-status',
@@ -38,6 +42,7 @@ const WlanManaRouter = {
             icon: ''
         },
         {
+            id:5004,
             title: '用户状态',
             type: 'view',
             name: 'user-status',
@@ -47,6 +52,7 @@ const WlanManaRouter = {
             icon: ''
         },
         {
+            id:5005,
             title: '告警信息',
             type: 'view',
             name: 'alarm-information',

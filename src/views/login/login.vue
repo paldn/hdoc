@@ -100,6 +100,7 @@ import jh_title from '@/assets/images/jh_tit.png'
 import Config from '@/config'
 import myUtils from '@/plugins/myUtils'
 import loginapi from '@/services/models/login'
+import { mapActions ,mapGetters } from 'vuex'
 export default {
   name: 'Login',
   data () {
@@ -131,6 +132,7 @@ export default {
   },
   methods:
   {
+    ...mapActions(['setUserAndState','setCompany']),
     gotoPrev()
     {
       let c = this.count - 1
@@ -148,21 +150,23 @@ export default {
     {
 
     },
-    _Init()
+    async _Init()
     {
-      Promise.all([loginapi.doRandom(),loginapi.getServerType(),loginapi.getBSInitinfo()]).then(arr=>
+      try
       {
-        let [_rand_,_serverType_,_bsInfo_] = arr
+        const _rand_ = await loginapi.doRandom()
+        const _serverType_ = await loginapi.getServerType()
+        const _bsInfo_ = await loginapi.getBSInitinfo()
 
         this.company = _bsInfo_.activedcomapny
         this.serial_number = _bsInfo_.serialcode
-
-        console.log(_rand_)
-        console.log(_serverType_)
-        console.log(_bsInfo_)
-      })
+      }
+      catch(e)
+      {
+        console.error(e)
+      }
     },
-    doLogin()
+    async doLogin()
     {
       
       let sixnum = myUtils.randomRange(6)
@@ -172,14 +176,50 @@ export default {
       let code = encodeURIComponent(this.form.verifyCode)
       let v_dx = sixnum + ";userp"
 
-      Promise.all([loginapi.doLogin(username, userp,sessionid,code,v_dx),loginapi.getRight(),loginapi.getLoginUser]).then(arr=>
+      try
       {
-        let [_login_,_user_,_right_] = arr
-        console.log(_login_)
-        console.log(_user_)
-        console.log(_right_)
+        const _login_ = await loginapi.doLogin(username, userp,sessionid,code,v_dx)
+        const _right_ = await loginapi.getRight()
+        const _user_ = await loginapi.getLoginUser()
 
+        if(_login_.status == 'success')
+        {
+          let user = {}
+          user.name = this.form.username
+          user.id = _user_.id
+          user.group_id = _user_.groupid
+          user.identity = _user_.UserName
+          let status = true
+
+          let company = {}
+          company.name = this.company
+          company.serial_number = this.serial_number
+          company.id = _login_.companyid
+          company.remainDays = _login_.remainDays
+          company.showFirst = _login_.showfirst
+
+          this.setUserAndState(user,status)
+          this.setCompany(company)
+          this.$router.push('/')
+        }
+        else
+        {
+          this.$message.error(_login_.errmsg)
+          this.rand = Math.random()
+        }
+      }
+      catch(e)
+      {
+        this.rand = Math.random()
+        console.error(e)
+      }
+
+      /*
+      Promise.all([f1,f2,...,fn]).then(arr=>
+      {
+     
       })
+      */
     },
     async refreshCode()
     {

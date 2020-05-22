@@ -1,15 +1,17 @@
 //3D视图路由
 const ThreeDimensionalViewRouter = {
+    id:1200,
     route: null,
     name: null,
     title: '3D视图',
     type: 'folder',
-    icon: 'iconfont icon-dshitu',
+    icon: 'iconfont icon-dshitu1',
     filePath: 'views/3d-views/',
     order: null,
     inNav: true,
     children: [
       {
+        id:1201,
         title: '3D展示',
         type: 'view',
         name: '3d-display',
@@ -19,6 +21,7 @@ const ThreeDimensionalViewRouter = {
         icon: ''
       },
       {
+        id:1202,
         title: '3D配置',
         type: 'view',
         name: '3d-editor',
@@ -28,6 +31,7 @@ const ThreeDimensionalViewRouter = {
         icon: ''
       },
       {
+        id:1203,
         title: '机柜配置',
         type: 'view',
         name: 'cabinet-editor',

@@ -76,10 +76,16 @@
 <script>
 import Utils from '@/services/utils/util'
 import { mapGetters } from 'vuex'
-
 export default 
 {
-  props: {isCollapse: Boolean},
+  props: {isCollapse: Boolean,groupmoduls:Array},
+  watch:
+  {
+    groupmoduls()
+    {
+      
+    }
+  },
   computed: 
   {
     defaultActive() {

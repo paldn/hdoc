@@ -1,7 +1,11 @@
 import Utils from "@/services/utils/util";
 
 import overview from './overview'
-import monitor from './monitor'
+import allmonitor from './allmonitor'
+import businessmonitor from './business-monitor'
+import configmana from './config-mana'
+import trafficanalysis from './traffic-analysis'
+import dynamicenvironmentmonitor from './dynamic-environment-monitor'
 import tdview from './3d-views'
 import assetsmana from './assets-mana'
 import wlanmana from './wlan-mana'
@@ -22,7 +26,11 @@ import setting from './setting'
 
 let homeRouter = [
     overview,
-    monitor,
+    allmonitor,
+    businessmonitor,
+    configmana,
+    trafficanalysis,
+    dynamicenvironmentmonitor,
     tdview,
     assetsmana,
     wlanmana,

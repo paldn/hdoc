@@ -6,6 +6,34 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "1392266",
+      "name": "分析",
+      "font_class": "72",
+      "unicode": "e69f",
+      "unicode_decimal": 59039
+    },
+    {
+      "icon_id": "6473036",
+      "name": "监控",
+      "font_class": "jiankong1",
+      "unicode": "e703",
+      "unicode_decimal": 59139
+    },
+    {
+      "icon_id": "8888520",
+      "name": "动环",
+      "font_class": "donghuan",
+      "unicode": "e7cd",
+      "unicode_decimal": 59341
+    },
+    {
+      "icon_id": "12144598",
+      "name": "配置",
+      "font_class": "peizhi",
+      "unicode": "e613",
+      "unicode_decimal": 58899
+    },
+    {
       "icon_id": "11020681",
       "name": "云下载",
       "font_class": "yunxiazai",

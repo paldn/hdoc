@@ -1,5 +1,6 @@
 //设置路由
 const SettingRouter = {
+    id:3000,
     route: null,
     name: null,
     title: '设置',
@@ -11,6 +12,7 @@ const SettingRouter = {
     children: 
     [
         {
+            id:3001,
             title: '系统设置',
             type: 'folder',
             name: 'system-setting',
@@ -21,6 +23,7 @@ const SettingRouter = {
             children:
             [
                 {
+                    id:300101,
                     title: '用户权限',
                     type: 'view',
                     name: 'user-auth',
@@ -30,6 +33,7 @@ const SettingRouter = {
                     icon: ''
                 },
                 {
+                    id:300103,
                     title: '其它设置',
                     type: 'view',
                     name: 'another-setting',
@@ -39,6 +43,7 @@ const SettingRouter = {
                     icon: ''
                 },
                 {
+                    id:300104,
                     title: '系统日志设置',
                     type: 'view',
                     name: 'system-log-setting',
@@ -48,6 +53,7 @@ const SettingRouter = {
                     icon: ''
                 },
                 {
+                    id:300105,
                     title: 'SnmpTrap设置',
                     type: 'view',
                     name: 'snmptrap-setting',
@@ -59,6 +65,7 @@ const SettingRouter = {
             ]
         },
         {
+            id:3002,
             title: '告警设置',
             type: 'folder',
             name: 'alarm-setting',
@@ -69,6 +76,7 @@ const SettingRouter = {
             children:
             [
                 {
+                    id:300201,
                     title: '邮件设置',
                     type: 'view',
                     name: 'email-setting',
@@ -78,6 +86,7 @@ const SettingRouter = {
                     icon: ''
                 },
                 {
+                    id:300202,
                     title: '短消息设置',
                     type: 'view',
                     name: 'message-setting',
@@ -87,6 +96,7 @@ const SettingRouter = {
                     icon: ''
                 },
                 {
+                    id:300203,
                     title: '告警模板',
                     type: 'view',
                     name: 'alarm-template',
@@ -98,6 +108,7 @@ const SettingRouter = {
             ]
         },
         {
+            id:3003,
             title: '任务计划',
             type: 'folder',
             name: 'task-plan',
@@ -108,6 +119,7 @@ const SettingRouter = {
             children:
             [
                 {
+                    id:300301,
                     title: '任务计划',
                     type: 'view',
                     name: 'task-plan',
@@ -119,6 +131,7 @@ const SettingRouter = {
             ]
         },
         {
+            id:3004,
             title: '产品信息',
             type: 'folder',
             name: 'product-information',
@@ -129,6 +142,7 @@ const SettingRouter = {
             children:
             [
                 {
+                    id:300401,
                     title: '关于',
                     type: 'view',
                     name: 'about',
