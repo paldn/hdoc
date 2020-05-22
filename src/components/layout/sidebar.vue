@@ -79,11 +79,53 @@ import { mapGetters } from 'vuex'
 export default 
 {
   props: {isCollapse: Boolean,groupmoduls:Array},
+  data()
+  {
+    return {
+      modulMap:{},
+      sideBarListPlus:[]
+    }
+  },
   watch:
   {
     groupmoduls()
     {
-      
+      this.modulMap = (function(groupmoduls)
+      {
+        let modulMap = {}
+        function _mapping_(_modulMap,_groupmoduls)
+        {
+          for(let i=0;i<_groupmoduls.length;i++)
+          {
+            _modulMap[_groupmoduls[i].id] = _groupmoduls[i].label
+            if(_groupmoduls[i].SubModul)
+            {
+              _mapping_(_modulMap,_groupmoduls[i].SubModul)
+            }
+          }
+        }
+        _mapping_(modulMap,groupmoduls)
+        return modulMap
+      })(this.groupmoduls)
+
+      const _filter_ = (obj)=>
+      {
+        if(obj&&Array.isArray(obj))
+        {
+          for(let i=obj.length-1;i>=0;i--)
+          {
+            if(!this.modulMap[obj[i].id.toString()])
+            {
+              obj.splice(i,1)
+              _filter_(obj[i].children)
+            }
+          }
+        }
+      }
+      _filter_(this.sideBarList)
+
+      //强制刷新组件
+      this.$forceUpdate()
     }
   },
   computed: 

@@ -65,11 +65,33 @@ export default {
   },
 
   methods: {
+    async _Init()
+    {
+      try
+      {
+        const result = await homeapi.getGroupModul()
+        if(result.status == "success")
+        {
+          this.groupmoduls = result.data
+        }
+        else
+        {
+          this.$message.error(result.errmsg)
+        }
+      }
+      catch(e)
+      {
+        console.log(e)
+      }
+    },
     changeSidebarState() {
       this.isCollapse = !this.isCollapse
     }
   },
-
+  created()
+  {
+    this._Init()
+  },
   mounted() {
     this.eventBus.$on('noReuse', () => {
       this.$refs.operate.style.height = '71px'

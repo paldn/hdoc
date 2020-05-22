@@ -59,6 +59,7 @@ export const sideBarList = (state) => {
 
     if (target.type === 'folder' && level !== 0) { // 处理 folder 模式
       const sideConfig = {}
+      sideConfig.id = target.id
       sideConfig.name = target.name
       sideConfig.title = target.title
       sideConfig.icon = target.icon
@@ -71,6 +72,7 @@ export const sideBarList = (state) => {
     // 处理一级就是 view 的情况
     if (target.type === 'view') {
       const sideConfig = {}
+      sideConfig.id = target.id
       sideConfig.name = target.name
       sideConfig.title = target.title
       sideConfig.icon = target.icon
@@ -81,6 +83,7 @@ export const sideBarList = (state) => {
     // 处理 appTab 情况
     if (target.type === 'tab') {
       const sideConfig = {}
+      sideConfig.id = target.id
       sideConfig.name = target.name
       sideConfig.title = target.title
       sideConfig.icon = target.icon
@@ -97,6 +100,7 @@ export const sideBarList = (state) => {
     // 最后一层, 都当做子节点处理
     if (level <= 0) {
       const sideConfig = {}
+      sideConfig.id = target.id
       sideConfig.name = target.name
       sideConfig.title = target.title
       sideConfig.icon = target.icon

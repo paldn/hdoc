@@ -337,6 +337,49 @@ const AllMonitorRouter = {
             icon: ''
         },
         {
+            id:1009,
+            title: '机房管理',
+            type: 'folder',
+            name: 'room-mana',
+            route: '/allmonitor/room-mana',
+            filePath: 'views/allmonitor/room-mana',
+            inNav: true,
+            icon: '',
+            children:
+            [
+                {
+                    id:100901,
+                    title: '3D机房展示',
+                    type: 'view',
+                    name: '3d-room-view',
+                    route: '/room-mana/3d-room-view',
+                    filePath: 'views/allmonitor/room-mana/3d-room-view.vue',
+                    inNav: true,
+                    icon: ''
+                },
+                {
+                    id:100902,
+                    title: '3D机房配置',
+                    type: 'view',
+                    name: '3d-room-editor',
+                    route: '/room-mana/3d-room-editor',
+                    filePath: 'views/allmonitor/room-mana/3d-room-editor.vue',
+                    inNav: true,
+                    icon: ''
+                },
+                {
+                    id:100903,
+                    title: '机柜配置',
+                    type: 'view',
+                    name: 'cabinet-editor',
+                    route: '/room-mana/cabinet-editor',
+                    filePath: 'views/allmonitor/room-mana/cabinet-editor.vue',
+                    inNav: true,
+                    icon: ''
+                }
+            ]
+        },
+        {
             id:1008,
             title: '工具',
             type: 'folder',
@@ -384,49 +427,6 @@ const AllMonitorRouter = {
                     name: 'error-freq-modify',
                     route: '/tools/error-freq-modify',
                     filePath: 'views/allmonitor/tools/error-freq-modify.vue',
-                    inNav: true,
-                    icon: ''
-                }
-            ]
-        },
-        {
-            id:1009,
-            title: '机房管理',
-            type: 'folder',
-            name: 'room-mana',
-            route: '/allmonitor/room-mana',
-            filePath: 'views/allmonitor/room-mana',
-            inNav: true,
-            icon: '',
-            children:
-            [
-                {
-                    id:100901,
-                    title: '3D机房展示',
-                    type: 'view',
-                    name: '3d-room-view',
-                    route: '/room-mana/3d-room-view',
-                    filePath: 'views/allmonitor/room-mana/3d-room-view.vue',
-                    inNav: true,
-                    icon: ''
-                },
-                {
-                    id:100902,
-                    title: '3D机房配置',
-                    type: 'view',
-                    name: '3d-room-editor',
-                    route: '/room-mana/3d-room-editor',
-                    filePath: 'views/allmonitor/room-mana/3d-room-editor.vue',
-                    inNav: true,
-                    icon: ''
-                },
-                {
-                    id:100903,
-                    title: '机柜配置',
-                    type: 'view',
-                    name: 'cabinet-editor',
-                    route: '/room-mana/cabinet-editor',
-                    filePath: 'views/allmonitor/room-mana/cabinet-editor.vue',
                     inNav: true,
                     icon: ''
                 }
