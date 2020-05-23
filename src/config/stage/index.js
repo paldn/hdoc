@@ -1,5 +1,6 @@
 import Utils from "@/services/utils/util";
 
+import deditor from './3d-editor'
 import overview from './overview'
 import allmonitor from './allmonitor'
 import businessmonitor from './business-monitor'
@@ -25,6 +26,7 @@ import setting from './setting'
  */
 
 let homeRouter = [
+    deditor,
     overview,
     allmonitor,
     businessmonitor,

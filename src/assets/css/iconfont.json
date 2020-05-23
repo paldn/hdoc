@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "848694",
+      "name": "魔方",
+      "font_class": "mofang",
+      "unicode": "e617",
+      "unicode_decimal": 58903
+    },
+    {
       "icon_id": "1392266",
       "name": "分析",
       "font_class": "72",
