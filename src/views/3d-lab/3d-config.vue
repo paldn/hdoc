@@ -1,12 +1,33 @@
 <template>
-  <div 
-    class="stage"
-    ref="stage"
-    @mousedown="handleMouseDown($event)" 
-    @mousemove="handleMouseMove($event)" 
-    @keydown="handleKeyDown($event)" 
-    @keyup="handleKeyUp($event)"
-  ></div>
+  <div class="lab">
+    <div 
+      class="stage"
+      ref="stage"
+      @mousedown="handleMouseDown($event)" 
+      @mousemove="handleMouseMove($event)" 
+      @keydown="handleKeyDown($event)" 
+      @keyup="handleKeyUp($event)"
+    ></div>
+    <i class="help iconfont icon-bangzhu1" @click="dialogVisible=true"></i>
+    <el-dialog
+      title="提示"
+      :visible.sync="dialogVisible"
+      width="30%">
+      <p style="line-height:30px;">
+        3D实验室是进行WEB三维项目开发测试
+        的模块，仅在开发过程中启用。项目在
+        发布打包之前请注释取消此模块。如果
+        你对三维知识不甚了解，不要轻易修改
+        此处源码。</p>
+      <p style="line-height:30px;text-align:right;">
+        <br/>————————&nbsp;&nbsp;陆红进&nbsp;&nbsp;
+      </p>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
+  </div>
 </template>
 
 <script>
@@ -17,13 +38,16 @@ export default {
   data () {
     return {
       msg: '3D配置',
-      camera:null,
-      scene:null,
-      renderer:null,
-      plane:null,
-      mouse:null,
+      dialogVisible:false,
+      mapArray:[],
+      side:40,
+      camera:null,//相机
+      scene:null,//场景
+      renderer:null,//渲染器
+      plane:null,//面板
+      mouse:null,//鼠标
       raycaster:null,
-      isShiftDown:false,
+      isShiftDown:false,//是否按下shift键
       rollOverMesh:null,
       rollOverMaterial:null,
       cubeGeo:null,
@@ -35,9 +59,8 @@ export default {
   {
     handleWindowResize()
     {
-      let width = this.$refs.stage.offsetWidth
-      let height = this.$refs.stage.offsetHeight
-      console.log(width,height)
+      let width = this.$refs.stage.parentNode.offsetWidth
+      let height = this.$refs.stage.parentNode.offsetHeight
       this.camera.aspect = width / height;
 			this.camera.updateProjectionMatrix();
 			this.renderer.setSize( width, height );
@@ -46,10 +69,10 @@ export default {
     {
       event.preventDefault();
 
-      let width = this.$refs.stage.offsetWidth
-      let height = this.$refs.stage.offsetHeight
-      let offsetLeft = this.$refs.stage.offsetLeft
-      let offsetTop = this.$refs.stage.offsetTop
+      let width = this.$refs.stage.parentNode.offsetWidth
+      let height = this.$refs.stage.parentNode.offsetHeight
+      let offsetLeft = this.$refs.stage.parentNode.offsetLeft
+      let offsetTop = this.$refs.stage.parentNode.offsetTop
 
       this.mouse.set( ( (event.clientX-offsetLeft) / width ) * 2 - 1, - ( (event.clientY-offsetTop) / height ) * 2 + 1 );
 
@@ -62,7 +85,7 @@ export default {
         var intersect = intersects[ 0 ];
 
         this.rollOverMesh.position.copy( intersect.point ).add( intersect.face.normal );
-        this.rollOverMesh.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
+        this.rollOverMesh.position.divideScalar( 25 ).floor().multiplyScalar( 25 ).addScalar( 25 );
 
       }
 			this.render();
@@ -71,11 +94,11 @@ export default {
     {
       event.preventDefault();
 
-      let width = this.$refs.stage.offsetWidth
-      let height = this.$refs.stage.offsetHeight
+      let width = this.$refs.stage.parentNode.offsetWidth
+      let height = this.$refs.stage.parentNode.offsetHeight
 
-      let offsetLeft = this.$refs.stage.offsetLeft
-      let offsetTop = this.$refs.stage.offsetTop
+      let offsetLeft = this.$refs.stage.parentNode.offsetLeft
+      let offsetTop = this.$refs.stage.parentNode.offsetTop
 
       this.mouse.set( ( (event.clientX-offsetLeft) / width ) * 2 - 1, - ( (event.clientY-offsetTop) / height ) * 2 + 1 );
 
@@ -105,11 +128,11 @@ export default {
 
           var voxel = new THREE.Mesh( this.cubeGeo, this.cubeMaterial );
           voxel.position.copy( intersect.point ).add( intersect.face.normal );
-          voxel.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
+          voxel.position.divideScalar( 25 ).floor().multiplyScalar( 25 ).addScalar( 25 );
           this.scene.add( voxel );
 
           this.objects.push( voxel );
-
+          console.log(JSON.stringify(voxel.position))
         }
 
         this.render();
@@ -138,6 +161,17 @@ export default {
     },
     init()
     {
+      for(let i=0;i<this.side;i++)
+      {
+        let _arr = []
+        for(let j=0;j<this.side;j++)
+        {
+          _arr.push(0)
+        }
+        this.mapArray.push(_arr)
+      }
+
+
       let width = this.$refs.stage.offsetWidth
       let height = this.$refs.stage.offsetHeight
 
@@ -151,7 +185,7 @@ export default {
       // roll-over helpers
 
       var rollOverGeo = new THREE.BoxBufferGeometry( 50, 50, 50 );
-      this.rollOverMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000, opacity: 0.5, transparent: true } );
+      this.rollOverMaterial = new THREE.MeshBasicMaterial( { color: 0x11ee11, opacity: 0.5, transparent: true } );
       this.rollOverMesh = new THREE.Mesh( rollOverGeo, this.rollOverMaterial );
       this.scene.add( this.rollOverMesh );
 
@@ -162,7 +196,7 @@ export default {
 
       // grid
 
-      var gridHelper = new THREE.GridHelper( 1000, 20 );
+      var gridHelper = new THREE.GridHelper( 1000, this.side );
       this.scene.add( gridHelper );
 
       //
@@ -207,12 +241,33 @@ export default {
   {
     this.init()
     this.render()
+  },
+  beforeDestroy()
+  {
+    window.removeEventListener('resize',this.handleWindowResize.bind(this),false)
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+.el-dialog__footer{border-top:1px solid #ccc;}
+.dialog-footer{line-height:20px;}
+.lab
+{
+  width:100%;
+  height:100%;
+  position:relative;
+}
+.help
+{
+  position:absolute;
+  display:block;
+  right:30px;
+  top:30px;
+  font-size:30px !important;
+  cursor:pointer;
+}
 .stage
 {
   width:100%;

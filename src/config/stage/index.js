@@ -26,8 +26,8 @@ import setting from './setting'
  */
 
 let homeRouter = [
-    deditor,
     overview,
+    deditor,
     allmonitor,
     businessmonitor,
     configmana,

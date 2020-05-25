@@ -6,6 +6,76 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "1011171",
+      "name": "刷新",
+      "font_class": "shuaxin",
+      "unicode": "e7ad",
+      "unicode_decimal": 59309
+    },
+    {
+      "icon_id": "1016237",
+      "name": "编辑",
+      "font_class": "xiugaitubiao",
+      "unicode": "e62b",
+      "unicode_decimal": 58923
+    },
+    {
+      "icon_id": "1585727",
+      "name": "编辑",
+      "font_class": "bianji-2",
+      "unicode": "e60d",
+      "unicode_decimal": 58893
+    },
+    {
+      "icon_id": "2795454",
+      "name": "禁止",
+      "font_class": "jinzhi2",
+      "unicode": "e602",
+      "unicode_decimal": 58882
+    },
+    {
+      "icon_id": "2869137",
+      "name": "删除",
+      "font_class": "shanchu",
+      "unicode": "e63c",
+      "unicode_decimal": 58940
+    },
+    {
+      "icon_id": "3800729",
+      "name": "播放",
+      "font_class": "bofang",
+      "unicode": "e603",
+      "unicode_decimal": 58883
+    },
+    {
+      "icon_id": "5107937",
+      "name": "禁止",
+      "font_class": "stop",
+      "unicode": "e604",
+      "unicode_decimal": 58884
+    },
+    {
+      "icon_id": "14020349",
+      "name": "新建 增加 新增-20",
+      "font_class": "xinjianzengjiaxinzeng-20",
+      "unicode": "e665",
+      "unicode_decimal": 58981
+    },
+    {
+      "icon_id": "14509695",
+      "name": "删 除",
+      "font_class": "shanchu1",
+      "unicode": "e678",
+      "unicode_decimal": 59000
+    },
+    {
+      "icon_id": "12080808",
+      "name": "帮 助",
+      "font_class": "bangzhu1",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
       "icon_id": "848694",
       "name": "魔方",
       "font_class": "mofang",
