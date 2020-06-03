@@ -6,11 +6,65 @@ import {
   } from '@/services/plugins/axios'
   class AllMonitorApi
   {
-    async getDeviceTree()
+    async getDeviceTypes()//获取设备类型列表
     {
-      const result = await post(`/gettree.BSI`)
+      const result = await post(`/bsAlertDevicetype.bsi?_=${(new Date()).getTime()}`)
       return result
     }
+    async getDeviceChildTree(id)//获取设备子树
+    {
+      const result = await post(`/gettreebsbyid.BSI?id=${id}&_=${(new Date()).getTime()}`)
+      return result
+    }
+    async getDeviceTree()//获取设备树
+    {
+      const result = await post(`/gettree.BSI?_=${(new Date()).getTime()}`)
+      return result
+    }
+    async getScriptTemplate(opType)//获取脚本模板
+    {
+      const result = await post(`/TemplateOp.bsi?opType=${opType}&_=${(new Date()).getTime()}`)
+      return result
+    }
+    async getEmailSenderAndReceiver()//获取邮件收发人
+    {
+      const result = await post(`/bsAlertShowEmailSendReceiveInfo.bsi?_=${(new Date()).getTime()}`)
+      return result
+    }
+    async getEmailAlarmTemplate()//获取邮件报警模板
+    {
+      const result = await post(`/bsAlertShowEmailTpl.bsi?_=${(new Date()).getTime()}`)
+      return result
+    }
+    async getEmailOpTemplate(params)//获取邮件告警模板
+    {
+      const result = await post(`/EmailOp.bsi?emailType=${params.emailType}&opType=${params.opType}&_=${(new Date()).getTime()}`)
+      return result
+    }
+    async getWeChatAlarmReceiver()//获取微信接收人
+    {
+      const result = await post(`/bsAlertShowWeixinReceiveInfo.bsi?_=${(new Date()).getTime()}`)
+      return result
+    }
+    async getMsgAlarmTemplate()//获取短信告警模板
+    {
+      const result = await post(`/bsAlertShowMsgTrapTpl.bsi?_=${(new Date()).getTime()}`)
+      return result
+    }
+    async getMsgAlarmModeAndReceiver()//获取短信告警方式和接收人
+    {
+      const result = await post(`/bsAlertShowMessageInfo.bsi?_=${(new Date()).getTime()}`)
+      return result
+    }
+    async getAppAlarmReceiver()//获取App告警接收人
+    {
+      const result = await post(`/bsGetCurrentUsers.bsi?_=${(new Date()).getTime()}`)
+      return result
+    }
+
+
+
+
     async createAlarmGroup(params)//创建告警组
     {
       const result = await post(`/bsAlertAddGroup.bsi?label=${params.name}&ccu=${params.ccu}&_=${(new Date()).getTime()}`)

@@ -2,7 +2,7 @@
   <div class="b-alarm-setting">
     <el-container>
       <!--告警分组功能-->
-      <el-header>
+      <el-header style="border-bottom:1px solid #ccc;">
         <div class="b-group">
           <el-select v-model="group" placeholder="请选择">
             <el-option
@@ -14,30 +14,31 @@
           </el-select>
         </div>
         <div class="b-operate">
-          <el-row>
-            <el-button icon="el-icon-circle-plus-outline" @click="handleAddGroup()">新增</el-button>
-            <el-button icon="el-icon-edit-outline" @click="handleEditGroup()">编辑</el-button>
-            <el-button icon="el-icon-delete-solid" @click="handleDeleteAlarmGroup()">删除</el-button>
-            <el-button icon="el-icon-remove-outline" @click="handleOnOrOffAlarmGroup()" v-if="group==''||group.split('_')[2]=='0'">禁止</el-button>
-            <el-button icon="el-icon-circle-check" @click="handleOnOrOffAlarmGroup()" v-else>允许</el-button>
-            <el-button icon="el-icon-refresh" @click="handleRefresh()">刷新</el-button>
-            <el-button icon="el-icon-bell" @click="handleAddAlarm()">添加告警</el-button>
+          <el-row style="margin:7px 0;">
+            <el-button icon="el-icon-circle-plus-outline" size="small" round @click="handleAddGroup()">新增</el-button>
+            <el-button icon="el-icon-edit-outline" size="small" round @click="handleEditGroup()">编辑</el-button>
+            <el-button icon="el-icon-delete-solid" size="small" round @click="handleDeleteAlarmGroup()">删除</el-button>
+            <el-button icon="el-icon-remove-outline" size="small" round @click="handleOnOrOffAlarmGroup()" v-if="group==''||group.split('_')[2]=='0'">禁止</el-button>
+            <el-button icon="el-icon-circle-check" size="small" round @click="handleOnOrOffAlarmGroup()" v-else>允许</el-button>
+            <el-button icon="el-icon-refresh" size="small" round @click="handleRefresh()">刷新</el-button>
+            <el-button icon="el-icon-bell" size="small" round @click="handleAddAlarm()">添加告警</el-button>
           </el-row>
         </div>
       </el-header>
       <!--告警列表-->
-      <el-main>
+      <el-main style="padding:10px 20px;">
         <el-table
           :data="alarms"
-          style="width: 100%">
+          style="width: 100%;font-size:12px;" 
+          center>
           <el-table-column type="expand">
             <template slot-scope="props">
               <el-row>
-                <el-button icon="el-icon-edit-outline" @click="handleEditAlarm(props.row)"></el-button>
-                <el-button icon="el-icon-circle-close" @click="handleDeleteAlarm(props.row)"></el-button>
-                <el-button icon="el-icon-refresh" @click="handleUpdateAlarm(props.row)"></el-button>
-                <el-button icon="el-icon-remove-outline" @click="handleDisableAlarm(props.row)"></el-button>
-                <el-button icon="el-icon-video-play" @click="handleTestAlarm(props.row)"></el-button>
+                <el-button icon="el-icon-edit-outline" circle @click="handleEditAlarm(props.row)"></el-button>
+                <el-button icon="el-icon-circle-close" circle @click="handleDeleteAlarm(props.row)"></el-button>
+                <el-button icon="el-icon-refresh" circle @click="handleUpdateAlarm(props.row)"></el-button>
+                <el-button icon="el-icon-remove-outline" circle @click="handleDisableAlarm(props.row)"></el-button>
+                <el-button icon="el-icon-video-play" circle @click="handleTestAlarm(props.row)"></el-button>
               </el-row>
             </template>
           </el-table-column>
@@ -60,6 +61,7 @@
       :title="groupform.model=='add'?'新增告警组':'编辑告警组'"
       :visible.sync="groupDialogVisible"
       width="30%"
+      class="groupdialog"
       center>
       <el-form ref="groupform" :model="groupform" label-width="80px" >
         <el-form-item label="名称">
@@ -67,7 +69,7 @@
           <el-input v-model="groupform.GroupId" type="hidden"></el-input>
         </el-form-item>
         <el-form-item label="容器">
-          <el-select v-model="groupform.ccu" placeholder="请选择" :disabled="groupform.model=='edit'">
+          <el-select v-model="groupform.ccu" placeholder="请选择" :disabled="groupform.model=='edit'" style="width:100%;">
             <el-option
               v-for="item in groups"
               :key="item.ccuid"
@@ -85,9 +87,9 @@
 
     <!--抽屉式窗口，该模块是用来添加和编辑告警-->
     <el-drawer
-      title="我是外面的 Drawer"
+      title="添加告警"
       :visible.sync="alarmDialogVisible"
-      size="100%">
+      size="75%">
         <AlarmDialog />
     </el-drawer>
   </div>
@@ -177,6 +179,48 @@ export default {
         params.GroupId = this.group.split("_")[1]
         const result = await allmonitorapi.getAlarmByGroup(params)
         this.alarms = result.data||[]
+        this.alarms = [
+          {
+              "id" : 7,
+              "label" : "网络延迟",
+              "managerdev" : 0,
+              "monitortype" : 0,
+              "operationcount" : 6,
+              "remark" : "efsfshdfgegeragaggaeg",
+              "sendtype" : "App 邮件 微信 脚本 短信 声音 ",
+              "state" : 0
+          },
+          {
+              "id" : 8,
+              "label" : "网络不通",
+              "managerdev" : 0,
+              "monitortype" : 0,
+              "operationcount" : 6,
+              "remark" : "dhjkfhjdsafss",
+              "sendtype" : "App 邮件 微信 脚本 短信 声音 ",
+              "state" : 0
+          },
+          {
+              "id" : 3,
+              "label" : "声音告警",
+              "managerdev" : 0,
+              "monitortype" : 0,
+              "operationcount" : 1,
+              "remark" : "",
+              "sendtype" : "声音 ",
+              "state" : 0
+          },
+          {
+              "id" : 6,
+              "label" : "光报警",
+              "managerdev" : 0,
+              "monitortype" : 0,
+              "operationcount" : 1,
+              "remark" : "",
+              "sendtype" : "工单 ",
+              "state" : 0
+          }
+        ]
       }
       catch(e)
       {
@@ -254,7 +298,7 @@ export default {
       }).then(async () => {
         let params = {}
         params.ccu = this.group.split("_")[0]
-        params.name = this.group.split("_")[1]
+        params.GroupId = this.group.split("_")[1]
         const result = await allmonitorapi.deleteAlarmGroup(params)
         if(result.status == 'success')
         {
@@ -329,7 +373,7 @@ export default {
     },
     handleAddAlarm()//添加告警
     {
-      this.alarmDialog = true
+      this.alarmDialogVisible = true
     },
     handleEditAlarm(row)//编辑告警
     {
@@ -368,14 +412,29 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
+<style lang="scss">
+.groupdialog
+{
+    .el-dialog__body{padding:25px 45px 30px 45px;border-top:1px solid #ccc;border-bottom:1px solid #ccc;}
+    .el-dialog__footer{padding-top:20px;}
+    .el-form-item{margin:0;}
+}
+</style>
+<style lang="scss">
+.el-drawer__header{color:#333;font-size:16px;font-weight:bold;text-Indent:20px;}
+.el-drawer__body{height:calc(100% - 77px);}
+</style>
 <style lang="scss" scoped>
 .b-group
 {
   float:left;
+  margin:10px 0;
 }
 .b-operate
 {
   float:right;
+  margin:10px 0;
+  padding-right:60px;
 }
 
 </style>
