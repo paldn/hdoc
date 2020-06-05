@@ -11,6 +11,11 @@ import {
       const result = await post(`/bsAlertDevicetype.bsi?_=${(new Date()).getTime()}`)
       return result
     }
+    async getTestDeviceTree(params)//获取测试设备子树
+    {
+      const result = await post(`/gettreebsbyid.BSI?isClearEmptyGroup=1&isClearEmptyDev=1&id=${params.id}&${params.extra}&_=${(new Date()).getTime()}`)
+      return result
+    }
     async getDeviceChildTree(id)//获取设备子树
     {
       const result = await post(`/gettreebsbyid.BSI?id=${id}&_=${(new Date()).getTime()}`)
@@ -62,6 +67,41 @@ import {
       return result
     }
 
+    async submitNewAlarm(params)//提交新的告警
+    {
+      const result = await post(`/bsAlertSaveAlertData.bsi?${params}_=${(new Date()).getTime()}`)
+      return result
+    }
+    async modifyOldAlarm(params)//修改告警
+    {
+      const result = await post(`/bsAlertEditAlertData.bsi?${params}_=${(new Date()).getTime()}`)
+      return result
+    }
+    async getAlarmDetail(params)//获取告警的详细信息
+    {
+      const result = await post(`/bsAlertShowInfo.bsi?GroupId=${params.GroupId}&AlertId=${params.AlarmId}&ccu=${params.ccu}&_=${(new Date()).getTime()}`)
+      return result
+    }
+    async activeOrDisableAlarm(params)//启用或禁止某告警
+    {
+      const result = await post(`/ForbidAlert.bsi?AlertGroupId=${params.GroupId}&AlertId=${params.alarmId}&ccu=${params.ccu}&Disabled=${params.Disabled}&_=${(new Date()).getTime()}`)
+      return result
+    }
+    async removeAlarm(params)//删除某告警
+    {
+      const result = await post(`/bsAlertDeleteAlertData.bsi?GroupId=${params.GroupId}&AlertId=${params.alarmId}&ccu=${params.ccu}&_=${(new Date()).getTime()}`)
+      return result
+    }
+    async getMonitorByDevice(params)
+    {
+      const result = await post(`/getmonitorlist.BSI?haspluginname=1&id=${params.id}&_=${(new Date()).getTime()}`)
+      return result
+    }
+    async testAlarmMonitor(params)
+    {
+      const result = await post(`/TestAlert.bsi?AlertGroupId=${params.GroupId}&AlertId=${params.alarmId}&DevId=${params.DevId}&Pluginname=${params.Pluginname}&CCUId=${params.ccu}&_=${(new Date()).getTime()}`)
+      return result
+    }
 
 
 
@@ -92,7 +132,7 @@ import {
     }
     async getAlarmByGroup(params)//通过告警分组获取告警
     {
-      const result = await post(`bsAlertShowOneGroup.bsi?ccu=${params.ccu}&GroupId=${params.GroupId}&_t=${(new Date()).getTime()}`)
+      const result = await post(`/bsAlertShowOneGroup.bsi?ccu=${params.ccu}&GroupId=${params.GroupId}&_t=${(new Date()).getTime()}`)
       return result
     }
   }

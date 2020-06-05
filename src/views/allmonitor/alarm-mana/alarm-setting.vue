@@ -34,19 +34,20 @@
           <el-table-column type="expand">
             <template slot-scope="props">
               <el-row>
-                <el-button icon="el-icon-edit-outline" circle @click="handleEditAlarm(props.row)"></el-button>
-                <el-button icon="el-icon-circle-close" circle @click="handleDeleteAlarm(props.row)"></el-button>
-                <el-button icon="el-icon-refresh" circle @click="handleUpdateAlarm(props.row)"></el-button>
-                <el-button icon="el-icon-remove-outline" circle @click="handleDisableAlarm(props.row)"></el-button>
-                <el-button icon="el-icon-video-play" circle @click="handleTestAlarm(props.row)"></el-button>
+                <el-button icon="el-icon-edit-outline" circle @click="handleEditAlarm(props.row)" class="scale"></el-button>
+                <el-button icon="el-icon-circle-close" circle @click="handleDeleteAlarm(props.row)" class="scale"></el-button>
+                <el-button icon="el-icon-refresh" circle @click="handleUpdateAlarm(props.row)" class="scale"></el-button>
+                <el-button icon="el-icon-remove-outline" circle @click="handleDisableAlarm(props.row)" v-if="props.row.state==0" class="scale"></el-button>
+                <el-button icon="el-icon-circle-check" circle @click="handleDisableAlarm(props.row)" v-else class="scale"></el-button>
+                <el-button icon="el-icon-video-play" circle @click="handleTestAlarm(props.row)" class="scale"></el-button>
               </el-row>
             </template>
           </el-table-column>
-          <el-table-column label="名称" prop="name"></el-table-column>
+          <el-table-column label="名称" prop="label"></el-table-column>
           <el-table-column label="状态" prop="state">
             <template slot-scope="prop">
               <span v-if="prop.row.state==0">正常</span>
-              <span v-else>异常</span>
+              <span v-else>禁止</span>
             </template>
           </el-table-column>
           <el-table-column label="动作数量" prop="operationcount"></el-table-column>
@@ -85,12 +86,53 @@
       </span>
     </el-dialog>
 
+    <!--监控项测试窗口-->
+    <el-dialog
+      title="测试监控项"
+      :visible.sync="testDialogVisible"
+      width="820px"
+      class="testdialog"
+      @close="handleResetTest"
+      center>
+        <div class="monitorbox" v-if="testDialogVisible">
+          <div>
+            <div><label>选择告警设备</label></div>
+            <div>
+              <el-tree
+                ref="dTree"
+                show-checkbox
+                node-key="id"
+                :check-strictly="false"
+                :load="loadNode"
+                lazy
+                :props="deviceProps"
+                class="tree-box">
+              </el-tree>
+            </div>
+          </div>
+          <div>
+            <div><label>选择监测点</label></div>
+            <el-radio-group v-model="testTarget">
+              <div v-for="(item,index) in monitorList" :key="item.id" style="margin:10px;">
+                <el-radio :label="index">{{item.name}}</el-radio>
+              </div>
+            </el-radio-group>
+          </div>
+        </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="testDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleTest">确 定</el-button>
+      </span>
+    </el-dialog>
+
+
     <!--抽屉式窗口，该模块是用来添加和编辑告警-->
     <el-drawer
-      title="添加告警"
+      :title="alarmId==''?'添加告警':'编辑告警'"
       :visible.sync="alarmDialogVisible"
-      size="75%">
-        <AlarmDialog />
+      size="75%"
+      :before-close="handleCloseDrawer">
+        <AlarmDialog :container="group" :alarmId="alarmId" :refleshAlarm="getAlarmByGroup.bind(this)" ref="alarmDialog"/>
     </el-drawer>
   </div>
 </template>
@@ -104,6 +146,7 @@ export default {
   data () {
     return {
       msg: '告警设置',
+      testDialogVisible:false,
       groupDialogVisible:false,
       alarmDialogVisible:false,
       groupform:
@@ -116,7 +159,17 @@ export default {
       group:'',
       groups:[],
       options:[],
-      alarms:[]
+      alarms:[],
+      alarmId:'',//要编辑的告警ID
+      deviceProps:
+      {
+          label:'name',
+          children:'subtree'
+      },
+      devId:'',
+      testAlarm:null,
+      testTarget:'',
+      monitorList:[]
     }
   },
   watch:
@@ -151,6 +204,92 @@ export default {
   },
   methods:
   {
+    loadNode(node, resolve)//加载子树
+    { 
+      let params = {}
+      if(node.level!=0)
+      {
+        node.loaded = false
+        node.isLeaf = false
+      }
+      window._node = node
+      if(!node.data||node.data.mxtype != 2)
+      {
+        let types = []
+        params.id = node.key||''
+        for(let i=0;i<this.testAlarm.DevTypeList.length;i++)
+        {
+          types.push('type['+i+']='+this.testAlarm.DevTypeList[i])
+        }
+        params.extra = types.join("&")
+
+        allmonitorapi.getTestDeviceTree(params).then(result=>
+        {
+            let treeData = []
+            if(result.data[0].subtree)
+            {
+                result.data[0].subtree.forEach(e => {
+                    treeData.push(
+                        {
+                            id:e.id,
+                            name:e.name,
+                            icon:e.icon,
+                            mxtype:e.mxtype,
+                            parentId:node.key,
+                            subtree:[]
+                        }
+                    )
+                })
+            }
+            if(node.data)
+            {
+                node.data.subtree = [...treeData]
+            }
+            
+            setTimeout(()=>
+            {
+                resolve(treeData)
+            },100)
+        }).then(res=>
+        {
+            resolve([])
+        })
+      }
+      else
+      {
+        node.loaded = true
+        node.isLeaf = true
+        node.loading = false
+        this.DevId = node.key
+        this.testTarget = ''
+        allmonitorapi.getMonitorByDevice({id:node.key}).then(result=>
+        {
+          if(result.data&&result.data.length>0)
+          {
+            this.monitorList = result.data[0].monitor
+          }
+        })
+      }
+        
+
+    },
+    handleCloseDrawer(done)
+    { 
+      this.$refs.alarmDialog.step = 0
+      this.$refs.alarmDialog.alarmId = ''
+      this.$refs.alarmDialog.$refs.alarmTarget.resetFields()
+      this.$refs.alarmDialog.$refs.sendTactics.resetFields()
+      this.$refs.alarmDialog.$refs.sendMode.resetFields()
+
+      this.$refs.alarmDialog.sendTactics.ActionParam1 = 2
+      this.$refs.alarmDialog.sendTactics.ActionParam1 = 3
+      this.$refs.alarmDialog.sendTactics.ActionParam1 = 60
+      this.$refs.alarmDialog.sendTactics.ActionParam1 = 3
+      this.$refs.alarmDialog.sendTactics.ActionStopNum = 0
+
+      this.alarmId = ''
+      done()
+    },
     async getDeviceTree()
     {
       const result = await allmonitorapi.getDeviceTree()
@@ -169,8 +308,12 @@ export default {
         console.error(e)
       }
     },
-    async getAlarmByGroup()//通过选中的告警组获取告警信息
+    async getAlarmByGroup(flag)//通过选中的告警组获取告警信息
     {
+      if(flag)
+      {
+        this.alarmDialogVisible = false
+      }
       if(!this.group)return
       try
       {
@@ -179,48 +322,6 @@ export default {
         params.GroupId = this.group.split("_")[1]
         const result = await allmonitorapi.getAlarmByGroup(params)
         this.alarms = result.data||[]
-        this.alarms = [
-          {
-              "id" : 7,
-              "label" : "网络延迟",
-              "managerdev" : 0,
-              "monitortype" : 0,
-              "operationcount" : 6,
-              "remark" : "efsfshdfgegeragaggaeg",
-              "sendtype" : "App 邮件 微信 脚本 短信 声音 ",
-              "state" : 0
-          },
-          {
-              "id" : 8,
-              "label" : "网络不通",
-              "managerdev" : 0,
-              "monitortype" : 0,
-              "operationcount" : 6,
-              "remark" : "dhjkfhjdsafss",
-              "sendtype" : "App 邮件 微信 脚本 短信 声音 ",
-              "state" : 0
-          },
-          {
-              "id" : 3,
-              "label" : "声音告警",
-              "managerdev" : 0,
-              "monitortype" : 0,
-              "operationcount" : 1,
-              "remark" : "",
-              "sendtype" : "声音 ",
-              "state" : 0
-          },
-          {
-              "id" : 6,
-              "label" : "光报警",
-              "managerdev" : 0,
-              "monitortype" : 0,
-              "operationcount" : 1,
-              "remark" : "",
-              "sendtype" : "工单 ",
-              "state" : 0
-          }
-        ]
       }
       catch(e)
       {
@@ -359,17 +460,17 @@ export default {
       const result = await allmonitorapi.changeAlarmGroupStatus(params)
       if(result.status == 'success')
       {
-        this.$message.success((params.Disabled==0?"启用":"禁用")+"告警组成功！")
+        this.$message.success((params.Disabled==1?"启用":"禁用")+"告警组成功！")
         this.getAlarmGroup()//刷新告警组
       }
       else
       {
-        this.$message.error((params.Disabled==0?"启用":"禁用")+"告警组失败！")
+        this.$message.error((params.Disabled==1?"启用":"禁用")+"告警组失败！")
       }
     },
     handleRefresh()//刷新数据
     {
-
+      
     },
     handleAddAlarm()//添加告警
     {
@@ -377,23 +478,123 @@ export default {
     },
     handleEditAlarm(row)//编辑告警
     {
+      this.alarmId = row.id
+      this.alarmDialogVisible = true
+    },
+    async handleDeleteAlarm(row)//删除告警
+    {
+      let params = {}
+      params.GroupId = this.group.split("_")[1]
+      params.ccu = this.group.split("_")[0]
+      params.alarmId = row.id
+
+      try
+      {
+        const result = await allmonitorapi.removeAlarm(params)
+        if(result.status == "success")
+        {
+          this.$message.success("删除成功")
+          this.getAlarmByGroup()
+        }
+        else
+        {
+          this.$message.error("删除失败")
+        }
+      }
+      catch(e)
+      {
+        console.error(e)
+      }
 
     },
-    handleDeleteAlarm(row)//删除告警
+    handleUpdateAlarm()
     {
+      this.getAlarmByGroup()
+    },
+    async handleDisableAlarm(row)//禁用告警
+    {
+      let params = {}
+      params.GroupId = this.group.split("_")[1]
+      params.ccu = this.group.split("_")[0]
+      params.alarmId = row.id
+      params.Disabled = row.state==0?1:0
+      try
+      {
+        const result = await allmonitorapi.activeOrDisableAlarm(params)
+        if(result.status == "success")
+        {
+          this.$message.success((params.Disabled==0?"启用":"禁止")+"成功")
+          this.getAlarmByGroup()
+        }
+        else
+        {
+          this.$message.error((params.Disabled==0?"启用":"禁止")+"失败")
+        }
+      }
+      catch(e)
+      {
+        console.error(e)
+      }
 
     },
-    handleUpdateAlarm(row)//更新告警
+    async handleTestAlarm(row)//测试告警
     {
+      let params = {}
+      params.GroupId = this.group.split("_")[1]
+      params.ccu = this.group.split("_")[0]
+      
+      params.AlarmId = row.id
 
+      try
+      {
+        const result = await allmonitorapi.getAlarmDetail(params)
+        this.testAlarm = eval("("+result+")")
+        this.alarmId = row.id
+        this.testDialogVisible = true
+      }
+      catch(e)
+      {
+        console.error(e)
+      }
     },
-    handleDisableAlarm(row)//禁用告警
+    async handleTest()
     {
-
+      if(!this.testTarget)
+      {
+        this.$alert("必须选择监控项","操作错误")
+        return false
+      }
+      let params = {}
+      params.GroupId = this.group.split("_")[1]
+      params.ccu = this.group.split("_")[0]
+      params.alarmId = this.alarmId
+      params.Pluginname = this.monitorList[parseInt(this.testTarget)].pluginname
+      params.DevId = this.DevId
+      try
+      {
+        const result = await allmonitorapi.testAlarmMonitor(params)
+        if(result.status == "success")
+        {
+          this.$message.success("已发送，请验证")
+          this.testDialogVisible = false
+        }
+        else
+        {
+          this.$message.error("发送失败，请与管理员联系")
+          this.testDialogVisible = false
+        }
+      }
+      catch(e)
+      {
+        console.error(e)
+      }
     },
-    handleTestAlarm(row)//测试告警
+    handleResetTest()
     {
-
+      this.alarmTarget = null
+      this.testTarget = ''
+      this.DevId = ''
+      this.monitorList = []
     }
   },
   computed:
@@ -419,10 +620,14 @@ export default {
     .el-dialog__footer{padding-top:20px;}
     .el-form-item{margin:0;}
 }
-</style>
-<style lang="scss">
 .el-drawer__header{color:#333;font-size:16px;font-weight:bold;text-Indent:20px;}
 .el-drawer__body{height:calc(100% - 77px);}
+
+.testdialog
+{
+  .el-dialog__body{padding:25px 45px 30px 45px;border-top:1px solid #ccc;border-bottom:1px solid #ccc;}
+  .el-dialog__footer{padding-top:20px;}
+}
 </style>
 <style lang="scss" scoped>
 .b-group
@@ -436,5 +641,48 @@ export default {
   margin:10px 0;
   padding-right:60px;
 }
+.scale
+{
+  font-size:18px;
+  padding:0 !important;
+  border:none !important;
+}
 
+.monitorbox
+{
+  height:337px;
+  > div
+  {
+    height:100%;
+    border-radius:4px;
+    border:1px solid #cccc;
+    float:left;
+    > div:nth-of-type(1)
+    {
+      width:100%;
+      padding:12px 0;
+      font-size:12px;
+      background:#f2f2f2;
+      color:#666;
+      > label{margin-left:6px;}
+    }
+    > div:nth-of-type(2)
+    {
+      height:300px;
+      border-top:1px solid #ccc;
+      width:100%;
+      overflow:auto;
+    }
+  }
+  > div:nth-of-type(1)
+  {
+    width:400px;
+  }
+  > div:nth-of-type(2)
+  {
+    width:300px;
+    margin-left:25px;
+  }
+}
+.tree-box{padding-top:10px;}
 </style>

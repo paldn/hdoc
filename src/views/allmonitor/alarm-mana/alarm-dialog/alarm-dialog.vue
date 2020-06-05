@@ -41,6 +41,7 @@
                             ref="dTree"
                             show-checkbox
                             node-key="id"
+                            :check-strictly="false"
                             :load="loadNode"
                             lazy
                             :props="deviceProps"
@@ -55,7 +56,7 @@
 
             <el-form ref="sendTactics" v-model="sendTactics" label-width="120px" style="margin-top:20px;" v-show="step==1">
                 <el-form-item style="margin:0;">
-                    <el-checkbox-group v-model="sendTactics.ActionStat_i">
+                    <el-checkbox-group v-model="sendTactics.ActionStat">
                         <el-checkbox label="2">危险</el-checkbox>
                         <el-checkbox label="3">故障</el-checkbox>
                     </el-checkbox-group>
@@ -63,13 +64,13 @@
                 <el-form-item style="margin:0;">
                     <el-radio-group v-model="sendTactics.ActionCondition">
                         <div style="margin-bottom:15px;">
-                            <el-radio label="2">
+                            <el-radio :label="2">
                                 当事件连续发生<input type="text" class="small-input" v-model="sendTactics.ActionParam1"/>次时，
                                 发送告警，再每<input type="text" class="small-input" v-model="sendTactics.ActionParam2"/>次发送一次告警
                             </el-radio>
                         </div>
                         <div>
-                            <el-radio label="4">
+                            <el-radio :label="4">
                                 在<input type="text" class="small-input" v-model="sendTactics.ActionParam3"/>分钟内，有
                                 <input type="text" class="small-input" v-model="sendTactics.ActionParam4"/>次同样状态事件发送告警
                             </el-radio>
@@ -113,7 +114,7 @@
                         </el-select>
                     </el-form-item>
                     <el-form-item label="收件人">
-                        <el-select placeholder="请选择" multiple v-model="sendMode.email.EmailList_i">
+                        <el-select placeholder="请选择" multiple v-model="sendMode.email.EmailList">
                             <el-option
                                 v-for="item in email_Receiver"
                                 :key="item.id"
@@ -159,7 +160,7 @@
                         </el-select>
                     </el-form-item>
                     <el-form-item label="短信接收人">
-                        <el-select placeholder="请选择" multiple v-model="sendMode.sms.SmsList_i">
+                        <el-select placeholder="请选择" multiple v-model="sendMode.sms.SmsList">
                             <el-option
                                 v-for="item in sms_Receiver"
                                 :key="item.id"
@@ -224,8 +225,8 @@
                             <el-option label="DLL" value="1"></el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item label="脚本/EXE名称" v-model="sendMode.script.ScriptName">
-                        <el-input type="text"/>
+                    <el-form-item label="脚本/EXE名称">
+                        <el-input type="text" v-model="sendMode.script.ScriptName"/>
                     </el-form-item>
                     <el-form-item label="附加参数">
                         <el-input type="textarea" rows="8" v-model="sendMode.script.ArguName"/>
@@ -272,7 +273,7 @@
                 <div style="margin-top:30px;" v-show="sendMode.modes.HasAPP">
                     <h3 style="margin-bottom:20px;">App告警</h3>
                     <el-form-item label="告警接收人">
-                        <el-select placeholder="请选择" multiple v-model="sendMode.app.AppUserList_i">
+                        <el-select placeholder="请选择" multiple v-model="sendMode.app.AppUserList">
                             <el-option
                                 v-for="item in app_Receiver"
                                 :key="item.userid"
@@ -332,8 +333,10 @@
 import allmonitorapi from '@/services/models/allmonitor'
 import wechat_img from '@/assets/images/wechat.jpg'
 import instructions_img from '@/assets/images/instructions.png'
+import { mapGetters } from 'vuex'
 export default {
   name: 'AlarmDialog',
+  props:{container:String,alarmId:String,refleshAlarm:Function},
   data () {
     return {
       msg: '告警窗口',
@@ -350,7 +353,7 @@ export default {
       },
       sendTactics://告警发送策略表单
       {
-          ActionStat_i:[],
+          ActionStat:[],
           ActionCondition:'',
           ActionParam1:2,
           ActionParam2:3,
@@ -359,7 +362,6 @@ export default {
           ActionStopCondition:false,
           ActionStopNum:0,
           sendbeOk:false
-
       },
       sendMode:
       {
@@ -375,7 +377,7 @@ export default {
           email:
           {
               SendSever:'',
-              EmailList_i:[],
+              EmailList:[],
               Email:'',
               EmailTpl:'',
               EmailRecoveryTpl:''
@@ -383,7 +385,7 @@ export default {
           sms:
           {
               SmsSendType:'',
-              SmsList_i:[],
+              SmsList:[],
               Sms:'',
               SmsTpl:'',
               SmsRecoveryTpl:''
@@ -409,7 +411,7 @@ export default {
           },
           app:
           {
-              AppUserList_i:[],
+              AppUserList:[],
               appTpl:'',
               appRecoveryTpl:''
           }
@@ -419,7 +421,6 @@ export default {
           label:'name',
           children:'subtree'
       },
-      persons:[],
       scriptTemplatesVisible:false,
       scriptTemplates:[],//脚本模板示例
       deviceTypes:[],//设备类型
@@ -434,7 +435,13 @@ export default {
   },
   watch:
   {
-
+      alarmId()
+      {
+        if(this.alarmId)
+        {
+            this.initAlarmDetail()
+        }
+      }
   },
   methods:
   {
@@ -451,11 +458,11 @@ export default {
                             id:e.id,
                             name:e.name,
                             icon:e.icon,
+                            parentId:node.key,
                             subtree:[]
                         }
                     )
                 })
-
                 resolve(treeData)
             }).catch(res=>
             {
@@ -477,12 +484,17 @@ export default {
                                 id:e.id,
                                 name:e.name,
                                 icon:e.icon,
+                                parentId:node.key,
                                 subtree:[]
                             }
                         )
                     })
                 }
-
+                if(node.data)
+                {
+                    node.data.subtree = [...treeData]
+                }
+                
                 setTimeout(()=>
                 {
                     resolve(treeData)
@@ -492,6 +504,7 @@ export default {
                 resolve([])
             })
         }
+
       },
       prevStep()
       {
@@ -501,115 +514,191 @@ export default {
       {
           this.step ++
       },
-      handleSubmit()
+      getSimplifyTreeCheckValue()
       {
-          /*
-            Label:网络不通✔
-            DevTypeGroup: 0
-            isAllGroup: 1
-            PluginType: 0
-            Remark: dhjkfhjdsafss✔
-            ActionStat_i: 2✔
-            ActionStat_i: 3✔
-            ActionCondition: 2✔
-            ActionParam1: 2✔
-            ActionParam2: 3✔
-            ActionParam3: 60✔
-            ActionParam4: 3✔
-            ActionStopNum: 9✔
-            sendbeOk: 1✔
-            caltime: 10
-            maxnum: 10
-            outtime: 5
-            netouttime: 180
-            flowintvtime: 15
-            noticeatime: 30
-            HasEmail: 1✔
-            HasSms: 1✔
-            HasSound: 1✔
-            HasScript: 1✔
-            HasWeixin: 1✔
-            HasAPP: 1✔
-            SendSever: 4✔
-            Email: 11111,22222✔
-            EmailList_i:✔
-            EmailTpl: EmalTpl_0✔
-            EmailRecoveryTpl: EmalTpl_0✔
-            SmsSendType: 55✔
-            SmsList_i: 3✔
-            Sms: 12315,12306✔
-            SmsTpl: MsgTpl_9✔
-            SmsRecoveryTpl: MsgTpl_9✔
-            SoundIp: 127.0.0.1✔
-            SoundPort: 2198✔
-            SoundName: sll.mp3✔
-            isRemote: 0✔
-            isDll: 0✔
-            ScriptName: sdl2.dll✔
-            DllName: 
-            DllFucntion: 
-            RemoteIp: 
-            RemotePort: 2198
-            ArguName: %Monitor%✔
-            WXOther: asfe12efsdr43fgsdgse,gjgh52sdgsd3szdgd✔
-            EmailTpl: EmalTpl_0
-            EmailRecoveryTpl: EmalTpl_0
-            AppUserList_i: user_1✔
-            AppUserList_i: user_3✔
-            appTpl: MsgTpl_9✔
-            appRecoveryTpl: MsgTpl_9✔
-            GDEmailTpl: EmalTpl_0
-            GDEmailRecoveryTpl: EmalTpl_0
-            ActionStat: 2,3✔
-            ActionParam: 2;3
-            GroupId: 1
-            DevTypeList: 
-            DevList: MXSE.1.SD.50.SubMonitor.Ping_,MXSE.1.SD.50.SubMonitor.SnmpCPUInfo_,MXSE.1.SD.61.SubMonitor.UnixPhysicalMemory_,MXSE.1.SD.61.SubMonitor.UnixMemory_,MXSE.1.SD.61.SubMonitor.UnixDependence_✔
-            PluginList: 
-            AlertDisable: 0
-            action[1][ActionType]: 0
-            action[1][EmailList]: 
-            action[1][Email]: 11111,22222
-            action[1][EmailTpl]: EmalTpl_0
-            action[1][EmailRecoveryTpl]: EmalTpl_0
-            action[1][SendSever]: 4
-            action[2][ActionType]: 1
-            action[2][SmsList]: 3
-            action[2][Sms]: 12315,12306
-            action[2][SmsTpl]: MsgTpl_9
-            action[2][SmsRecoveryTpl]: MsgTpl_9
-            action[2][SmsSendType]: 55
-            action[3][ActionType]: 2
-            action[3][SoundIp]: 127.0.0.1
-            action[3][SoundName]: sll.mp3
-            action[3][PlayExe]: undefined
-            action[3][SoundUser]: 2198
-            action[3][SoundPwd]: sll.mp3
-            action[4][ActionType]: 3
-            action[4][ScriptName]: sdl2.dll
-            action[4][RemoteIp]: 
-            action[4][nPort]: 2198
-            action[4][isRemote]: 0
-            action[4][isDll]: 0
-            action[4][DllName]: 
-            action[4][DllFucntion]: 
-            action[4][ArguName]: %Monitor%
-            action[5][ActionType]: 6
-            action[5][WXUserList]: 
-            action[5][WXOther]: asfe12efsdr43fgsdgse,gjgh52sdgsd3szdgd
-            action[5][WXEmailTpl]: EmalTpl_0
-            action[5][WXEmailRecoveryTpl]: EmalTpl_0
-            action[6][ActionType]: 7
-            action[6][UserIdList]: user_1,user_3
-            action[6][AppTpl]: MsgTpl_9
-            action[6][AppRecoveryTpl]: MsgTpl_9
-            ActionCount: 6
-            ccu: MXSE.1
-          */
+        let nodes = this.$refs.dTree.getCheckedNodes()
+        let nodeMap = {}
+        for(let i=0;i<nodes.length;i++)
+        {
+            nodeMap[nodes[i].id] = nodes[i]
+        }
+        for(let i=0;i<nodes.length;i++)
+        {
+            for(let j=0;j<nodes[i].subtree.length;j++)
+            {
+                delete nodeMap[nodes[i].subtree[j].id]
+            }
+        }
+        return Object.keys(nodeMap).join(",")
+      },
+      async handleSubmit()
+      {
+        let params = {}
+        //保留的参数
+        params.caltime = 10
+        params.maxnum = 10
+        params.outtime = 5
+        params.netouttime = 180
+        params.flowintvtime = 15
+        params.noticeatime = 30
+
+        params.Label = this.alarmTarget.Label//告警名称
+        params.DevList = this.getSimplifyTreeCheckValue()//告警项
+        params.Remark = this.alarmTarget.Remark//告警描述
+        
+        //告警状态，多选
+        params.ActionStat = this.sendTactics.ActionStat.join(",")
+        //告警控制
+        params.ActionCondition = this.sendTactics.ActionCondition
+        if(params.ActionCondition == 2)
+        {
+            params.ActionParam = this.sendTactics.ActionParam1+";"+this.sendTactics.ActionParam2
+        }
+        else
+        {
+            params.ActionParam = this.sendTactics.ActionParam3+";"+this.sendTactics.ActionParam4
+        }
+
+        params.ActionStopCondition = this.alarmTarget.ActionStopCondition?1:0
+        if(params.ActionStopCondition==1)
+        {
+            params.ActionStopNum = this.alarmTarget.ActionStopNum
+        }
+        params.sendbeOk = this.alarmTarget.sendbeOk?1:0
+
+        let count = 0
+        if(this.sendMode.modes.HasEmail)
+        {
+            count ++
+            params["action["+count+"][ActionType]"] = 0
+            params["action["+count+"][EmailList]"] = this.sendMode.email.EmailList.join(",")
+            params["action["+count+"][Email]"] = this.sendMode.email.Email
+            params["action["+count+"][EmailTpl]"] = this.sendMode.email.EmailTpl
+            params["action["+count+"][EmailRecoveryTpl]"] = this.sendMode.email.EmailRecoveryTpl
+            params["action["+count+"][SendSever]"] = this.sendMode.email.SendSever
+        }
+
+        if(this.sendMode.modes.HasSms)
+        {
+            count ++
+            params["action["+count+"][ActionType]"] = 1
+            params["action["+count+"][SmsList]"] = this.sendMode.sms.SmsList.join(",")
+            params["action["+count+"][Sms]"] = this.sendMode.sms.Sms
+            params["action["+count+"][SmsTpl]"] = this.sendMode.sms.SmsTpl
+            params["action["+count+"][SmsRecoveryTpl]"] = this.sendMode.sms.SmsRecoveryTpl
+            params["action["+count+"][SmsSendType]"] = this.sendMode.sms.SmsSendType
+        }
+
+        if(this.sendMode.modes.HasSound)
+        {
+            count ++
+            params["action["+count+"][ActionType]"] = 2
+            params["action["+count+"][SoundIp]"] = this.sendMode.sound.SoundIp
+            params["action["+count+"][SoundName]"] = this.sendMode.sound.SoundName
+            params["action["+count+"][SoundPort]"] = this.sendMode.sound.SoundPort
+            params["action["+count+"][PlayExe]"] = ""
+            params["action["+count+"][SoundUser]"] = this.sendMode.sound.SoundPort
+            params["action["+count+"][SoundPwd]"] = ""
+        }
+
+        if(this.sendMode.modes.HasScript)
+        {
+            count ++
+            params["action["+count+"][ActionType]"] = 3
+            params["action["+count+"][ScriptName]"] = ""
+            params["action["+count+"][RemoteIp]"] = ""
+            params["action["+count+"][nPort]"] = ""
+            params["action["+count+"][isRemote]"] = this.sendMode.script.isRemote
+            params["action["+count+"][isDll]"] = this.sendMode.script.isDll
+            params["action["+count+"][DllName]"] = ""
+            params["action["+count+"][DllFucntion]"] = ""
+            params["action["+count+"][ArguName]"] = this.sendMode.script.ArguName
+            params["action["+count+"][ScriptName]"] = this.sendMode.script.ScriptName
+        }
+
+        if(this.sendMode.modes.HasWechat)
+        {
+            count ++
+            params["action["+count+"][ActionType]"] = 6
+            params["action["+count+"][WXUserList]"] = ""
+            params["action["+count+"][WXOther]"] = this.sendMode.wechat.WXOther
+            params["action["+count+"][WXEmailTpl]"] = this.sendMode.wechat.WXEmailTpl
+            params["action["+count+"][WXEmailRecoveryTpl]"] = this.sendMode.wechat.WXEmailRecoveryTpl
+        }
+
+        if(this.sendMode.modes.HasAPP)
+        {
+            count ++
+            params["action["+count+"][ActionType]"] = 7
+            params["action["+count+"][UserIdList]"] = this.sendMode.app.AppUserList.join(",")
+            params["action["+count+"][AppTpl]"] = this.sendMode.app.appTpl
+            params["action["+count+"][AppRecoveryTpl]"] = this.sendMode.app.appRecoveryTpl
+        }
+
+        params.ActionCount = count
+
+        params.GroupId = this.container.split('_')[1]
+
+        params.ccu = this.container.split('_')[0]
+
+        let long_params = ''
+        for(var k in params)
+        {
+            long_params += k+'='+params[k]+'&'
+        }
+
+        if(this.alarmId)//如果没有接收到告警ID视为新增告警，否则就是编辑旧有告警信息
+        {
+            params.AlertId = this.alarmId
+            long_params += 'AlertId='+params.AlertId
+            try
+            {
+                const result = await allmonitorapi.modifyOldAlarm(long_params)
+                if(result.status=="success")
+                {
+                    this.$message.success("告警信息修改成功")
+                    this.refleshAlarm(true)
+                }
+                else
+                {
+                    this.$message.error("告警信息修改失败")
+                }
+            }
+            catch(e)
+            {
+                console.error(e)
+            }
+        }
+        else
+        {
+            try
+            {
+                const result = await allmonitorapi.submitNewAlarm(long_params)
+                if(result.status=="success")
+                {
+                    this.$message.success("新增告警成功")
+                    this.refleshAlarm(true)
+                }
+                else
+                {
+                    this.$message.error("新增告警失败")
+                }
+            }
+            catch(e)
+            {
+                console.error(e)
+            }
+        }
+
       },
       handleCancel()
       {
-
+        this.step = 0
+        this.alarmId = ''
+        this.$refs.alarmTarget.resetFields()
+        this.$refs.sendTactics.resetFields()
+        this.$refs.sendMode.resetFields()
+        this.refleshAlarm(true)
       },
       handleRefresh()
       {
@@ -619,7 +708,8 @@ export default {
             allmonitorapi.getEmailSenderAndReceiver()
         ]).then(arr=>
         {
-            console.log(arr)
+            this.wechat_Receiver = arr[0].data||[]
+            this.email_SenderAndReceiver = arr[1].data||[]
         })
       },
       init()
@@ -637,7 +727,6 @@ export default {
             allmonitorapi.getAppAlarmReceiver()
         ]).then(arr=>
         {
-            console.log(arr)
             this.scriptTemplates = arr[0].VarDes||[]
             this.deviceTypes = arr[1].data||[]
             this.wechat_Receiver = arr[2].data||[]
@@ -648,10 +737,108 @@ export default {
             this.sms_SenderAndReceiver = arr[7].data||[]
             this.app_Receiver = arr[8].data||[]
         })
+      },
+      async initAlarmDetail()//初始化告警信息
+      {
+          let params = {}
+          params.GroupId = this.container.split("_")[1]
+          params.ccu = this.container.split("_")[0]
+          params.AlarmId = this.alarmId
+          try
+          {
+              let result = await allmonitorapi.getAlarmDetail(params)
+              result = eval("("+result+")")
+              this.alarmTarget.Label = result.Label
+              this.alarmTarget.DevList = result.DevList.split(",")
+              this.$refs.dTree.setCheckedKeys(this.alarmTarget.DevList)
+              this.alarmTarget.Remark = result.Remark
+
+              this.sendTactics.ActionStat = result.ActionStat.split(",")
+              this.sendTactics.ActionCondition = result.ActionCondition
+              if(this.sendTactics.ActionCondition==2)
+              {
+                  this.sendTactics.ActionParam1 = result.ActionParam.split(";")[0]
+                  this.sendTactics.ActionParam2 = result.ActionParam.split(";")[1]
+              }
+              else
+              {
+                  this.sendTactics.ActionParam3 = result.ActionParam.split(";")[0]
+                  this.sendTactics.ActionParam4 = result.ActionParam.split(";")[1]
+              }
+
+              this.sendTactics.ActionStopCondition = result.ActionStopNum!=-1
+              this.sendTactics.sendbeOk = result.sendbeOk!=0  
+              this.sendTactics.ActionStopNum = result.ActionStopNum==-1?0:result.ActionStopNum
+
+              for(let i=0;i<result.action.length;i++)
+              {
+                  if(result.action[i].ActionType==0)
+                  {
+                      this.sendMode.modes.HasEmail = true
+                      this.sendMode.email.EmailList = (arr=>
+                      {
+                          let narr = []
+                          for(let i=0;i<arr.length;i++)
+                          {
+                              narr.push(parseInt(arr[i]))
+                          }
+                          return narr
+                      })(result.action[i].EmailList.split(","))
+                      this.sendMode.email.Email = result.action[i].Email
+                      this.sendMode.email.EmailTpl = result.action[i].EmailTpl
+                      this.sendMode.email.EmailRecoveryTpl = result.action[i].EmailRecoveryTpl
+                      this.sendMode.email.SendSever = result.action[i].SendSever
+                  }
+                  else if(result.action[i].ActionType==1)
+                  {
+                      this.sendMode.modes.HasSms = true
+                      this.sendMode.sms.SmsList = result.action[i].SmsList.split(",")
+                      this.sendMode.sms.Sms = result.action[i].Sms
+                      this.sendMode.sms.SmsSendType = result.action[i].SmsSendType.toString()
+                      this.sendMode.sms.SmsTpl = result.action[i].SmsTpl
+                      this.sendMode.sms.SmsRecoveryTpl = result.action[i].SmsRecoveryTpl
+                  }
+                  else if(result.action[i].ActionType==2)
+                  {
+                      this.sendMode.modes.HasSound = true
+                      this.sendMode.sound.SoundIp = result.action[i].SoundIp
+                      this.sendMode.sound.SoundPort = result.action[i].SoundUser
+                      this.sendMode.sound.SoundName = result.action[i].SoundName
+                  }
+                  else if(result.action[i].ActionType==3)
+                  {
+                      this.sendMode.modes.HasScript = true
+                      this.sendMode.script.ScriptName = result.action[i].ScriptName
+                      this.sendMode.script.isRemote = result.action[i].isRemote.toString()
+                      this.sendMode.script.isDll = result.action[i].isDll.toString()
+                      this.sendMode.script.ArguName = result.action[i].ArguName
+                  }
+                  else if(result.action[i].ActionType==6)
+                  {
+                      this.sendMode.modes.HasWechat = true
+                      this.sendMode.wechat.WXOther = result.action[i].WXOther
+                      this.sendMode.wechat.WXEmailTpl = result.action[i].WXEmailTpl
+                      this.sendMode.wechat.WXEmailRecoveryTpl = result.action[i].WXEmailRecoveryTpl
+                  }
+                  else if(result.action[i].ActionType==7)
+                  {
+                      this.sendMode.modes.HasAPP = true
+                      this.sendMode.app.AppUserList = result.action[i].RecvUserIds.split(",")
+                      this.sendMode.app.appTpl = result.action[i].AppTpl
+                      this.sendMode.app.appRecoveryTpl = result.action[i].AppRecoveryTpl
+                  }
+              }
+              console.log(result)
+          }
+          catch(e)
+          {
+              console.error(e)
+          }
       }
   },
   computed:
   {
+      ...mapGetters(["company","user"]),
       email_Sender()//邮件发送者
       {
           let arr = []
@@ -696,11 +883,13 @@ export default {
   created()
   {
     this.init()
-    window._vm = this
   },
   mounted()
   {
-      window._vm = this
+    if(this.alarmId)
+    {
+        this.initAlarmDetail()
+    }
   }
 }
 </script>
@@ -791,6 +980,7 @@ export default {
         border: none;
         border-bottom: 1px solid #aaa;
         margin: 0 5px;
+        text-align:center;
     }
     .tree-box{height:250px;width:350px;padding-top:10px;border: 1px solid #dcdfe6;border-radius:4px;}
     .el-table{width:350px !important;}
