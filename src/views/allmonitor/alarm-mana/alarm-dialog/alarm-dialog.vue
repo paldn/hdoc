@@ -9,8 +9,7 @@
                 </div>
             </div>
             <div :class="{divbg:true,active:step==1}" style="width:160;" @click="step=1">
-                <div :class="{arrow:true,active:step==0}" style="">
-                </div>
+                <div :class="{arrow:true,active:step==0}" style=""></div>
                 <div style="text-align:center; width:130px;">
                     <span style="font-size:18px;">2.</span>
                     <span style="">&nbsp;选择发送策略</span>
@@ -325,7 +324,7 @@
                 </span>
             </el-dialog>
         </div>
-    <el-main>
+    </el-main>
   </el-container>
 </template>
 

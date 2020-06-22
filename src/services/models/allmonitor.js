@@ -6,6 +6,17 @@ import {
   } from '@/services/plugins/axios'
   class AllMonitorApi
   {
+    async getManageTree()//获取设备管理树
+    {
+      const result = await post(`/GetManageTreeInfo.BSI?isGetMonitorFrequency=1&isGetLastTime=0&id=&_=${(new Date()).getTime()}`)
+      return result
+    }
+    async getManageSubTree(pid)//获取设备管理子树
+    {
+      const result = await post(`/gettreebsbyid.BSI?isGetSelfMenu=1&isGetMonitorFrequency=1&isGetAlertAndEventCount=1&id=${pid}&_=${(new Date()).getTime()}`)
+      return result
+    }
+
     async getDeviceTypes()//获取设备类型列表
     {
       const result = await post(`/bsAlertDevicetype.bsi?_=${(new Date()).getTime()}`)
