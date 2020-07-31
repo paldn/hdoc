@@ -146,5 +146,55 @@ import {
       const result = await post(`/bsAlertShowOneGroup.bsi?ccu=${params.ccu}&GroupId=${params.GroupId}&_t=${(new Date()).getTime()}`)
       return result
     }
+    async getAlarmCount()//获取告警数量
+    {
+      const result = await post(`/getallDevsMstatus.bsi?_t=${(new Date()).getTime()}`)
+      return result
+    }
+    async getAllMonitors(params)//获取所有监控项
+    {
+      const result = await post(`/bsGetallmonitorinfo.bsi?dotype=${params.dotype}&toford=${params.toford}&page=${params.page}&mon_status=${params.mon_status}&_=${(new Date()).getTime()}`)
+      return result
+    }
+    async getSearchDevice(params)//设备检索
+    {
+      const result = await post(`/SearchDevListByNameOrIp.BSI?opType=${params.opType}&bGetPath=${params.bGetPath}&nodetype=${params.nodetype}&stringtype=${params.stringtype}&isall=${params.isall}&onlysub=${params.onlysub}&nameorip=${params.nameorip}&_=${(new Date()).getTime()}`)
+      return result
+    }
+    async getEntityTemplates(params)//获取设备模板
+    {
+      const result = await get(`/GetEntityTemplate.bsi?gtid=${params.gtid}&_=${(new Date()).getTime()}`)
+      return result
+    }
+    async getUsedTemplates(params)//获取设备样例
+    {
+      const result = await post(`/manother.sm?bsi=index&m=teng&_t=${(new Date()).getTime()}`,'etype='+JSON.stringify(params.etype))
+      return result
+    }
+    async getEntityInputProperty(params)
+    {
+      const result = await post(`/addDeviceStep1.bsi?devicetype=${params.deviceType}&parentid=${params.parentId}_t=${(new Date()).getTime()}`)
+      return result
+    }
+    async addEntity(params)
+    {
+      const result = await post(`/addDeviceStep2.bsi?devicetype=${params.deviceType}&groupid=${params.parentId}&_t=${(new Date()).getTime()}`,{},params.form)
+      return result
+    }
+    async opMonitPoint(params)
+    {
+      const result = await await post(`/allMonitorOpGather.bsi?_t=${(new Date()).getTime()}`,{},params)
+      return result
+    }
+    async beginTestMonitor(params)
+    {
+      const result = await post(`/testbegin.bsi?id=${params.deviceId}&force=${params.force}&_t=${(new Date()).getTime()}`)
+      return result
+    }
+    async getTestMonitorResult(params)
+    {
+      const result = await post(`/testget.bsi?clock=${params.clock}&_t=${(new Date()).getTime()}`)
+      return result
+    }
   }
   export default new AllMonitorApi()

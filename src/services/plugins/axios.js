@@ -13,26 +13,14 @@ const config = {
   baseURL: Config.baseUrl,
   timeout: 30 * 60 * 1000,
   crossDomain: true,
+  withCredentials:true,
+  emulateJSON:true,
   validateStatus(status) {
     return status >= 200 && status < 500
   }
 }
 const _axios = axios.create(config)
-
 _axios.interceptors.request.use(config => {
-  /*
-  callbackparam ++
-
-  if(config.url.indexOf("?")!=-1)
-  {
-    config.url = config.url+'&callbackparam=callbackfunction'+callbackparam
-  }
-  else
-  {
-    config.url = config.url+'?callbackparam=callbackfunction'+callbackparam
-  }
-  */
-
   return config
 }, error => {
   Promise.reject(error)
@@ -79,7 +67,7 @@ export function post(url, data = {}, params = {}) {
     method: 'post',
     url,
     data,
-    params
+    params,
   })
 }
 

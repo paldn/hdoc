@@ -125,6 +125,11 @@ export default {
   },
   methods:
   {
+    getBound(evt)
+    {
+      let {width,height,left,top} = evt.target.getBoundingClientRect()
+      return {width,height,offsetLeft:left,offsetTop:top}
+    },
     handlePrev()
     {
       if(this.page > 1)
@@ -257,10 +262,7 @@ export default {
     {
       event.preventDefault();
       if(!this.$refs.stage)return
-      let width = this.$refs.stage.offsetWidth
-      let height = this.$refs.stage.offsetHeight
-      let offsetLeft = this.$refs.stage.parentNode.offsetLeft
-      let offsetTop = this.$refs.stage.parentNode.offsetTop
+      let {width,height,offsetLeft,offsetTop} = this.getBound(event)
 
       this.mouse.set( ( (event.clientX-offsetLeft) / width ) * 2 - 1, - ( (event.clientY-offsetTop) / height ) * 2 + 1 );
 
@@ -288,10 +290,7 @@ export default {
     {
       event.preventDefault();
       if(!this.$refs.stage)return
-      let width = this.$refs.stage.offsetWidth
-      let height = this.$refs.stage.offsetHeight
-      let offsetLeft = this.$refs.stage.parentNode.offsetLeft
-      let offsetTop = this.$refs.stage.parentNode.offsetTop
+      let {width,height,offsetLeft,offsetTop} = this.getBound(event)
 
       this.mouse.set( ( (event.clientX-offsetLeft) / width ) * 2 - 1, - ( (event.clientY-offsetTop) / height ) * 2 + 1 );
 
@@ -315,12 +314,8 @@ export default {
     {
       event.preventDefault();
       if(!this.$refs.stage)return
-      let width = this.$refs.stage.offsetWidth
-      let height = this.$refs.stage.offsetHeight
-
-      let offsetLeft = this.$refs.stage.parentNode.offsetLeft
-      let offsetTop = this.$refs.stage.parentNode.offsetTop
-
+      
+      let {width,height,offsetLeft,offsetTop} = this.getBound(event)
       this.mouse.set( ( (event.clientX-offsetLeft) / width ) * 2 - 1, - ( (event.clientY-offsetTop) / height ) * 2 + 1 );
 
       this.raycaster.setFromCamera( this.mouse, this.camera );
@@ -347,8 +342,8 @@ export default {
 
         this.intersect = intersects[0]
 
-        this.arrow.x = event.clientX
-        this.arrow.y = event.clientY
+        this.arrow.x = event.clientX - offsetLeft
+        this.arrow.y = event.clientY - offsetTop
         this.timer = setInterval(()=>
         {
           this.mousepress += 20
@@ -703,13 +698,13 @@ export default {
 }
 .model-container
 {
-  width:100%;
+  width:calc(100% - 200px);
   height:120px;
   position: absolute;
   background:#f8f8f8;
   box-shadow: 0 0 3px #ccc;
   position: fixed;
-  left:0;
+  left:200px;
   bottom:0;
   pointer-events:auto;
   > div

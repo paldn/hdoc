@@ -22,7 +22,7 @@ import {
       }
       async getServerType()
       {
-        const result = await get(`/GetServerType.bsi?_t=${new Date().getTime()}`)
+        const result = await get(`/GetServerType.bsi?_=${new Date().getTime()}`)
         return result
       }
       async getBSInitinfo()
